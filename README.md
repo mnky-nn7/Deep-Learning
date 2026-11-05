@@ -1,7 +1,3 @@
-# Deep Learning — 선형회귀 시뮬레이터
-
-원본 Linear Regression 교육용 사이트의 화면 구성과 주요 기능을 참고한 React + TypeScript 구현입니다.
-
 ## 시작
 
 ```powershell
@@ -35,15 +31,9 @@ npm run dev
 - 학습률 조절
 - 최소제곱법의 해석적 해 바로 구하기
 
-## 수학
+## 사용된 수식
 
 - 예측: `h(x) = w*x + b`
 - 비용: `J(w,b) = (1/2) * Σ(h(x_i)-y_i)^2`
 - 편미분: `dJ/dw = Σ((h(x_i)-y_i)*x_i)`, `dJ/db = Σ(h(x_i)-y_i)`
 - 경사하강법: `w -= learningRate * dJ/dw`, `b -= learningRate * dJ/db`
-
-## 참고
-
-- 현재는 **프론트엔드 동작 데모**이며 모든 계산은 브라우저 TypeScript에서 수행합니다.
-- 교수님이 Python 구현을 요구하셨다면 추후 Python으로 동일 알고리즘을 구현하고 FastAPI로 연결해야 합니다.
-- 원본 사이트와 픽셀 단위 동일하지 않으며 등고선은 이산 색상 히트맵으로 근사한 구현입니다.
