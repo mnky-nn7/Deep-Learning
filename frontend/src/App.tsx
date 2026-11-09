@@ -9,18 +9,24 @@ const initialData: Point[] = [
   { id: 9, x: .85, y: .70 }, { id: 10, x: .98, y: .90 },
 ];
 // 원점을 지나는 직선: h(x) = a*x
-const predict = (x: number, a: number, b = 0) => a * x + b;
-// 오차제곱합: S(a) = Σ(a*x_i - y_i)^2
+const predict = (x: number, a: number, b = 0) => a * x + b; 
+// 최소제곱법: 오차 제곱합을 계산하는 비용함수
+ // 수업 공식: S(a) = Σ(axᵢ - yᵢ)² (절편 b = 0)
+ // 확장 공식: S(a,b) = Σ(axᵢ + b - yᵢ)², b가 원점을 지나지 않을때!
+ // a는 직선의 기울기, b는 절편
+ // b의 기본값은 0이므로 수업 공식도 계산 가능
 const cost = (data: Point[], a: number, b = 0) =>
   data.reduce((sum, p) => sum + (predict(p.x, a, b) - p.y) ** 2, 0);
 // 미분: S'(a) = 2*Σ((a*x_i - y_i)*x_i)
-const gradient = (data: Point[], a: number, b: number) =>
-  data.reduce((sum, p) => {
-    const error = predict(p.x, a, b) - p.y;
-    return { a: sum.a + 2 * error * p.x, b: sum.b + 2 * error };
-  }, { a: 0, b: 0 });
+const gradient = (data: Point[], a: number, b: number) => //a는 직선의 기울기, b는 y좌표, 배열은 데이터
+  data.reduce((sum, p) => { //reduce는 배열의 데이터를 하나씩 가져와서 결과를 누적하는 함수
+    const error = predict(p.x, a, b) - p.y; //오차 계산하는 코드 (error = (ax+b)-y)
+    return { a: sum.a + 2 * error * p.x, b: sum.b + 2 * error }; //오차를 계산한뒤 편미분 결과를 누적
+  }, { a: 0, b: 0 }); //sum 의 초기값
+//편미분 코드
 
 const fmt = (n: number, places = 3) => (n >= 0 ? '+' : '') + n.toFixed(places);
+//places 만큼 소수점 뒷자리를 붙이고 0보다 크면 + 아니면 아무것도 붙이지 마라.
 
 function RegressionPlot({ data, a, b, onAdd }: { data: Point[]; a: number; b: number; onAdd: (x: number, y: number) => void }) {
   const xMin = Math.min(-1.2, ...data.map(p => p.x - .15));
