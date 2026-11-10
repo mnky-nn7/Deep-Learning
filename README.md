@@ -1,3 +1,26 @@
+## GitHub Pages 배포
+
+- 배포 브랜치: `dev`
+- 배포 워크플로: `.github/workflows/deploy.yml`
+- 배포 주소: https://mnky-nn7.github.io/Deep-Learning/
+
+GitHub 저장소의 **Settings → Pages → Build and deployment → Source**를
+**GitHub Actions**로 설정합니다. `dev` 브랜치에 push하면 의존성 설치,
+TypeScript 검사, Vite 빌드 후 GitHub Pages에 자동 배포합니다.
+실행 결과와 실제 배포 주소는 **Actions → Deploy to GitHub Pages**에서 확인합니다.
+별도 배포 토큰은 필요하지 않습니다.
+
+로컬에서 배포 경로를 적용한 빌드를 확인하려면 다음 명령을 실행합니다.
+
+```powershell
+cd frontend
+npm.cmd ci
+npm.cmd run build -- --base=/Deep-Learning/
+npm.cmd run preview
+```
+
+미리보기 주소는 `http://localhost:4173/Deep-Learning/`입니다.
+
 ## 시작
 
 ```powershell
