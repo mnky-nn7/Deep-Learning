@@ -90,8 +90,9 @@ const gradient3D = (data: Point3D[], w: Weights3D): Weights3D => {
 
 function Regression3DPlot({ data, weights, yaw, pitch, onRotate }: { data:Point3D[]; weights:Weights3D; yaw:number; pitch:number; onRotate:(yaw:number,pitch:number)=>void }) {
   const drag=useRef<{x:number;y:number;yaw:number;pitch:number}|null>(null),[dragging,setDragging]=useState(false);
-  const startDrag=(e:ReactPointerEvent<SVGSVGElement>)=>{e.currentTarget.setPointerCapture(e.pointerId);drag.current={x:e.clientX,y:e.clientY,yaw,pitch};setDragging(true)};
-  const moveDrag=(e:ReactPointerEvent<SVGSVGElement>)=>{if(!drag.current)return;const rawYaw=drag.current.yaw+(e.clientX-drag.current.x)*.55,nextYaw=((rawYaw+180)%360+360)%360-180,nextPitch=Math.max(-89,Math.min(89,drag.current.pitch-(e.clientY-drag.current.y)*.4));onRotate(nextYaw,nextPitch)};
+  useEffect(()=>{if(!dragging)return;const previousOverflow=document.body.style.overflow,previousOverscroll=document.body.style.overscrollBehavior;document.body.style.overflow='hidden';document.body.style.overscrollBehavior='none';return()=>{document.body.style.overflow=previousOverflow;document.body.style.overscrollBehavior=previousOverscroll}},[dragging]);
+  const startDrag=(e:ReactPointerEvent<SVGSVGElement>)=>{e.preventDefault();e.currentTarget.setPointerCapture(e.pointerId);drag.current={x:e.clientX,y:e.clientY,yaw,pitch};setDragging(true)};
+  const moveDrag=(e:ReactPointerEvent<SVGSVGElement>)=>{if(!drag.current)return;e.preventDefault();const rawYaw=drag.current.yaw+(e.clientX-drag.current.x)*.55,nextYaw=((rawYaw+180)%360+360)%360-180,nextPitch=Math.max(-89,Math.min(89,drag.current.pitch-(e.clientY-drag.current.y)*.4));onRotate(nextYaw,nextPitch)};
   const endDrag=(e:ReactPointerEvent<SVGSVGElement>)=>{if(e.currentTarget.hasPointerCapture(e.pointerId))e.currentTarget.releasePointerCapture(e.pointerId);drag.current=null;setDragging(false)};
   const range=Math.max(2,Math.abs(weights.w1)+.25,Math.abs(weights.w2)+.25),size=17;
   const values=Array.from({length:size},(_,zi)=>Array.from({length:size},(_,xi)=>{
@@ -108,7 +109,7 @@ function Regression3DPlot({ data, weights, yaw, pitch, onRotate }: { data:Point3
   })).flat().sort((a,b)=>b.depth-a.depth);
   const currentCost=cost3D(data,weights),current=project(weights.w1,height(currentCost),weights.w2);
   const origin=project(-range,0,-range),w1End=project(range,0,-range),w2End=project(-range,0,range),costEnd=project(-range,2.9,-range);
-  return <svg className={`plot plot-3d ${dragging?'is-dragging':''}`} viewBox="0 0 560 420" role="img" aria-label="가중치에 따른 3차원 비용함수 곡면. 드래그하여 회전할 수 있습니다." onPointerDown={startDrag} onPointerMove={moveDrag} onPointerUp={endDrag} onPointerCancel={endDrag}>
+  return <svg className={`plot plot-3d ${dragging?'is-dragging':''}`} viewBox="0 0 560 420" role="img" aria-label="가중치에 따른 3차원 비용함수 곡면. 드래그하여 회전할 수 있습니다." onPointerDown={startDrag} onPointerMove={moveDrag} onPointerUp={endDrag} onPointerCancel={endDrag} onDragStart={e=>e.preventDefault()}>
     <rect width="560" height="420" fill="#fbfdff"/>
     {cells.map(cell=><polygon key={cell.key} points={cell.points.map(p=>`${p.x},${p.y}`).join(' ')} fill={`hsl(${218-cell.level*38} ${76+cell.level*8}% ${35+cell.level*30}%)`} stroke="rgba(225,246,255,.34)" strokeWidth=".55"/>)}
     <line x1={origin.x} y1={origin.y} x2={w1End.x} y2={w1End.y} className="surface-axis"/><line x1={origin.x} y1={origin.y} x2={w2End.x} y2={w2End.y} className="surface-axis"/><line x1={origin.x} y1={origin.y} x2={costEnd.x} y2={costEnd.y} className="surface-axis"/>
